@@ -37,11 +37,22 @@
     location.href = intentUrl;
   } else if(isKakao){
     showBanner('카카오톡 브라우저에서는 파일 첨부 공유가 제한돼요.<br>오른쪽 아래 <b>공유 아이콘(⇧)</b> 또는 <b>「···」</b>를 눌러 <b>"Safari로 열기"</b>를 선택해 주세요.');
-  } else if(isSamsung && isAndroid && !/[?&]nochrome=1/.test(location.href)){
-    var selfUrl = location.href + (location.href.indexOf('?') > -1 ? '&' : '?') + 'nochrome=1';
-    var withoutScheme2 = selfUrl.replace(/^https?:\/\//, '');
-    var intentUrl2 = 'intent://' + withoutScheme2 + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(selfUrl) + ';end';
-    location.href = intentUrl2;
+  } else if(isSamsung && isAndroid){
+    var u = new URL(location.href);
+    var step = u.searchParams.get('kcastep');
+    if(!step){
+      u.searchParams.set('kcastep', '1');
+      var target1 = u.toString();
+      var intentChrome = 'intent://' + target1.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(target1) + ';end';
+      location.href = intentChrome;
+    } else if(step === '1'){
+      u.searchParams.set('kcastep', '2');
+      var target2 = u.toString();
+      var intentChooser = 'intent://' + target2.replace(/^https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;S.browser_fallback_url=' + encodeURIComponent(target2) + ';end';
+      location.href = intentChooser;
+    } else {
+      showBanner('삼성인터넷은 파일 첨부 공유가 제한될 수 있어요.<br>우측 하단 메뉴에서 <b>다른 브라우저로 열기</b>를 선택하시면 더 안정적으로 작동해요. (크롬 앱이 없다면 설치를 권장해요)');
+    }
   } else if(isSamsung){
     showBanner('삼성인터넷은 파일 첨부 공유가 제한될 수 있어요.<br>우측 하단 메뉴에서 <b>Chrome으로 열기</b>를 선택하시면 더 안정적으로 작동해요.');
   }
@@ -493,6 +504,10 @@ let deferredInstallPrompt = null;
 const btnInstall = document.getElementById('btnInstall');
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 
 if(!isStandalone){
   window.addEventListener('beforeinstallprompt', (e)=>{
