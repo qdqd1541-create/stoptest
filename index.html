@@ -16,8 +16,8 @@
 (function(){
   var ua = navigator.userAgent || navigator.vendor || '';
   var isKakao = /KAKAOTALK/i.test(ua);
-  var isAndroid = /Android/i.test(ua);
   var isSamsung = /SamsungBrowser/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
 
   function showBanner(html){
     document.addEventListener('DOMContentLoaded', function(){
