@@ -1,6 +1,4 @@
-const CACHE_NAME = 'kca-stop-work-v1';
-
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
@@ -8,8 +6,5 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
-  );
-});
+// 요청을 가로채지 않고 그대로 통과시킴 (설치 조건 충족용)
+self.addEventListener('fetch', () => {});
